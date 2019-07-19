@@ -3,3 +3,6 @@
 ################################################################################
 
 /FriedLiver/scans
+/FriedLiver/x64
+/FriedLiver/.vs/FriedLiver/v15
+*.pdb

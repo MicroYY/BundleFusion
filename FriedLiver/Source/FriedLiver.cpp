@@ -9,6 +9,24 @@ RGBDSensor* getRGBDSensor()
 	static RGBDSensor* g_sensor = NULL;
 	if (g_sensor != NULL)	return g_sensor;
 
+	if (GlobalAppState::get().s_sensorIdx == 10) {
+#ifdef MYNTEYE
+		g_sensor = new MynteyeSensor;
+		return g_sensor;
+#else
+		throw MLIB_EXCEPTION("Requires Mynteye SDK and enable MYNTEYE macro");
+#endif // MYNTEYE
+	}
+
+	if (GlobalAppState::get().s_sensorIdx == 9) {
+#ifdef TCP_SENSOR
+		g_sensor = new TCPSensor;
+		return g_sensor;
+#else
+		throw MLIB_EXCEPTION("Requires TCP connection and enable TCP_SENSOR macro");
+#endif // TCP_SENSOR
+	}
+
 	if (GlobalAppState::get().s_sensorIdx == 0) {
 #ifdef KINECT
 		//static KinectSensor s_kinect;

@@ -83,7 +83,7 @@ void RenderHelp();
 
 CDXUTDialogResourceManager	g_DialogResourceManager; // manager for shared resources of dialogs
 CDXUTTextHelper*            g_pTxtHelper = NULL;
-bool						g_renderText = false;
+bool						g_renderText = true;
 bool						g_bRenderHelp = true;
 
 CModelViewerCamera          g_Camera;               // A model viewing camera

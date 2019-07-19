@@ -45,6 +45,8 @@
 #include "KinectSensor.h"
 #include "KinectOneSensor.h"
 #include "StructureSensor.h"
+#include "MynteyeSensor.h"
+#include "TCPSensor.h"
 #include "SensorDataReader.h"
 
 

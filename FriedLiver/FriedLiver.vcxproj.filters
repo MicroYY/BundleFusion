@@ -149,6 +149,12 @@
     <ClCompile Include="Source\KinectOneSensor.cpp">
       <Filter>Sensors</Filter>
     </ClCompile>
+    <ClCompile Include="Source\TCPSensor.cpp">
+      <Filter>Sensors</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\MynteyeSensor.cpp">
+      <Filter>Sensors</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\FriedLiver.h" />
@@ -397,6 +403,12 @@
       <Filter>Sensors</Filter>
     </ClInclude>
     <ClInclude Include="Source\KinectOneSensor.h">
+      <Filter>Sensors</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TCPSensor.h">
+      <Filter>Sensors</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\MynteyeSensor.h">
       <Filter>Sensors</Filter>
     </ClInclude>
   </ItemGroup>
