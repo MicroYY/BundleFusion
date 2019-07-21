@@ -29,9 +29,45 @@ TCPSensor::TCPSensor()
 #endif // HD
 	bufSize = colorHeight * colorWidth * 2 * 3;
 
-	recvImg = (char*)malloc(sizeof(char) * bufSize);
-	recvImgRGB = (uchar*)recvImg;
-	recvImgDepth = (uchar*)recvImg + bufSize / 2;
+	//recvImg = (char*)malloc(sizeof(char) * bufSize);
+	//recvImgRGB = (uchar*)recvImg;
+	//recvImgDepth = (uchar*)recvImg + bufSize / 2;
+
+	TCHAR* szName = TEXT("imageData");
+	HANDLE hMapFile = CreateFileMapping(
+		INVALID_HANDLE_VALUE,
+		NULL,
+		PAGE_READWRITE,
+		0,
+		sizeof(unsigned char) * bufSize,
+		szName);
+	recvImg = (unsigned char*)MapViewOfFile(
+		hMapFile,
+		FILE_MAP_WRITE,
+		0,
+		0,
+		sizeof(unsigned char) * bufSize);
+	recvImgRGB = recvImg;
+	recvImgDepth = recvImg + bufSize / 2;
+
+#ifdef VR_DISPLAY
+	TCHAR vrProcess[] = TEXT("x64\\Release\\VR.exe");
+	STARTUPINFO si = { 0 };
+	PROCESS_INFORMATION pi;
+	DWORD dwExitCode;
+	auto iRet = CreateProcess(vrProcess, NULL, NULL, NULL, false, NULL, NULL, NULL, &si, &pi);
+	if (iRet)
+	{
+		std::cout << "VR display process started." << std::endl
+			<< "Process ID:\t"
+			<< pi.dwProcessId << std::endl;
+	}
+	else
+	{
+		std::cout << "Cannot start process!" << std::endl
+			<< "Error code:\t" << GetLastError() << std::endl;
+	}
+#endif // VR_DISPLAY
 }
 
 TCPSensor::~TCPSensor()
@@ -87,10 +123,10 @@ void TCPSensor::createFirstConnected()
 
 bool TCPSensor::processDepth()
 {
-	int iRet = recv(clientSocket, recvImg, bufSize, 0);
+	int iRet = recv(clientSocket, (char*)recvImg, bufSize, 0);
 	while (iRet != bufSize)
 	{
-		iRet += recv(clientSocket, &recvImg[iRet], bufSize - iRet, 0);
+		iRet += recv(clientSocket, (char*)(recvImg) + iRet, bufSize - iRet, 0);
 	}
 
 

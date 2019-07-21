@@ -32,7 +32,7 @@ private:
 	unsigned int colorWidth, colorHeight, depthWidth, depthHeight;
 	unsigned int bufSize;
 
-	char* recvImg;
+	uchar* recvImg;
 	uchar* recvImgRGB;
 	uchar* recvImgDepth;
 	

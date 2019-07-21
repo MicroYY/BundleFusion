@@ -6,3 +6,5 @@
 /FriedLiver/x64
 /FriedLiver/.vs/FriedLiver/v15
 *.pdb
+/FriedLiver/Mapping/x64/Release
+/FriedLiver/VR/x64/Release
