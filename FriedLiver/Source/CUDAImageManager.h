@@ -85,7 +85,7 @@ public:
 				return m_colorIntegration;
 			}
 			else {
-				if (this != s_activeColorGPU) {
+				if (this != s_activeColorGPU) { 
 					MLIB_CUDA_SAFE_CALL(cudaMemcpy(s_colorIntegrationGlobal, m_colorIntegration, sizeof(uchar4)*s_width*s_height, cudaMemcpyHostToDevice));
 					s_activeColorGPU = this;
 				}

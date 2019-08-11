@@ -121,7 +121,6 @@ int main()
 	}
 
 	SOCKADDR_IN srvAddr;
-
 	srvAddr.sin_addr.S_un.S_addr = inet_addr("192.168.1.198");
 	srvAddr.sin_family = AF_INET;
 	srvAddr.sin_port = htons(1234);
@@ -150,17 +149,7 @@ int main()
 	std::cout << "开始读取盔数据" << std::endl;
 	memcpy(tmpPose, pose, bufSize);
 	getEulerAngleAndPositionFromHMDPose(tmpPose, roll, pitch, yaw, position_x, position_y, position_z);
-	while (yaw >= 360.0f)
-	{
-		yaw -= 360.0f;
-	}
-	while (yaw < 0.0f)
-	{
-		yaw += 360.0f;
-	}
-
 	float initYaw = yaw;
-	
 
 	Eigen::Vector3f initPosition(position_x, position_y, position_z);
 	lastPos = initPosition;
@@ -174,17 +163,8 @@ int main()
 		memcpy(tmpPose, pose, bufSize);
 		getEulerAngleAndPositionFromHMDPose(tmpPose, roll, pitch, yaw, position_x, position_y, position_z);
 		yaw -= initYaw;
-		//yaw -= 90.0f;
-		
-		while (yaw >= 360.0f)
-		{
-			yaw -= 360.0f;
-		}
-		while (yaw < 0.0f)
-		{
+		if (yaw < 0.0f)
 			yaw += 360.0f;
-		}
-
 		Eigen::Vector3f currentPosition(position_x, position_y, position_z);
 		Eigen::Vector3f relativePosition = currentPosition - initPosition;
 		float positionAngle = atan2(relativePosition(1), relativePosition(0)) * 180.0f / PI;
@@ -235,8 +215,8 @@ int main()
 					{
 						float x0 = radius * relativePosition(0) / dist;
 						float y0 = radius * relativePosition(1) / dist;
-						userVelocity(0) = (relativePosition(0) - x0) * 0.5f;
-						userVelocity(1) = (relativePosition(1) - y0) * 0.5f;
+						userVelocity(0) = (relativePosition(0) - x0) * 0.3f;
+						userVelocity(1) = (relativePosition(1) - y0) * 0.3f;
 						userVelocity(2) = 0.0f;
 #ifdef SIMULATION
 						UAV_velocity = userVelocity;
@@ -253,8 +233,8 @@ int main()
 				{
 					float x0 = radius * relativePosition(0) / dist;
 					float y0 = radius * relativePosition(1) / dist;
-					userVelocity(0) = (relativePosition(0) - x0) * 0.5f;
-					userVelocity(1) = (relativePosition(1) - y0) * 0.5f;
+					userVelocity(0) = (relativePosition(0) - x0) * 0.3f;
+					userVelocity(1) = (relativePosition(1) - y0) * 0.3f;
 					userVelocity(2) = 0.0f;
 #ifdef SIMULATION
 					UAV_velocity = userVelocity;

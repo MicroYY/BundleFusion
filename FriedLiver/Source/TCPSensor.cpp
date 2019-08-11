@@ -50,7 +50,7 @@ TCPSensor::TCPSensor()
 	recvImgRGB = recvImg;
 	recvImgDepth = recvImg + bufSize / 2;
 
-#ifdef VR_DISPLAY
+#ifdef VR_DISPLAY_PROCESS
 	TCHAR vrProcess[] = TEXT("x64\\Release\\VR.exe");
 	STARTUPINFO si = { 0 };
 	PROCESS_INFORMATION pi;

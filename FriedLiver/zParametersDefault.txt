@@ -30,9 +30,9 @@ s_minPoseDistSqrt = 0.0f;	//reintegrate everything above that pose distance (squ
 // **** DEPTH SENSING BELOW ***** //
 ////////////////////////////////////
 
-s_sensorDepthMax = 4.0f;	//maximum sensor depth in meter
+s_sensorDepthMax = 8.0f;	//maximum sensor depth in meter
 s_sensorDepthMin = 0.1f;	//minimum sensor depth in meter
-s_renderDepthMax = 4.0f;	//maximum render depth in meter
+s_renderDepthMax = 8.0f;	//maximum render depth in meter
 s_renderDepthMin = 0.1f;	//minimum render depth in meter
 
 // sdf and hash settings
@@ -40,7 +40,7 @@ s_SDFVoxelSize = 0.010f;				//voxel size in meter (IMPORTANT: reduces to improve
 s_SDFMarchingCubeThreshFactor = 10.0f;	//marching cube thresh: s_SDFMarchingCubeThresh = s_SDFMarchingCubeThreshFactor*s_SDFVoxelSize
 s_SDFTruncation = 0.06f;				//truncation in meter
 s_SDFTruncationScale = 0.02f;			//truncation scale in meter per meter
-s_SDFMaxIntegrationDistance = 3.0f;		//maximum integration in meter
+s_SDFMaxIntegrationDistance = 8.0f;		//maximum integration in meter
 s_SDFIntegrationWeightSample = 1;		//weight for an integrated depth value
 s_SDFIntegrationWeightMax = 99999999;	//maximum integration weight for a voxel
 // s_SDFBlockSize is pound defined (SDF_BLOCK_SIZE)
@@ -67,8 +67,8 @@ s_colorSigmaD = 2.0f;	//bilateral filter sigma domain
 s_colorSigmaR = 0.1f;	//bilateral filter sigma range
 s_colorFilter = false;	//bilateral filter enabled depth
 
-s_integrationEnabled		= true;
-s_trackingEnabled			= true;
+s_integrationEnabled		= false;
+s_trackingEnabled			= false;
 s_timingsDetailledEnabled   = true;	//enable timing output
 s_timingsTotalEnabled		= false;	//enable timing output
 s_garbageCollectionEnabled	= true;
@@ -112,6 +112,6 @@ s_recordCompression = true;		//if recoding is enabled; then compression is used 
 s_recordDataWidth = 640;		//only applies to the non compressed version (see RGBDSensor.cpp)
 s_recordDataHeight = 480;		//only applies to the non compressed version (see RGBDSensor.cpp)
 s_recordDataFile = "dump/recording.sens";
-s_reconstructionEnabled = true;
+s_reconstructionEnabled = false;
 
 

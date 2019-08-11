@@ -39,6 +39,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\..\Props\mynteyed-release.props" />
     <Import Project="..\..\..\Props\opencv-3.2.0-release.props" />
+    <Import Project="..\..\..\Props\OVR.props" />
+    <Import Project="..\..\..\Props\SDL-Release.props" />
+    <Import Project="..\..\..\Props\glew-1.12.0.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -170,11 +173,13 @@
     <ClInclude Include="Source\DepthSensing\DX11Utils.h" />
     <ClInclude Include="Source\DepthSensing\MarchingCubesSDFUtil.h" />
     <ClInclude Include="Source\DepthSensing\RayCastSDFUtil.h" />
+    <ClInclude Include="Source\DepthSensing\Shader.hpp" />
     <ClInclude Include="Source\DepthSensing\StdOutputLogger.h" />
     <ClInclude Include="Source\DepthSensing\Tables.h" />
     <ClInclude Include="Source\DepthSensing\TimingLogDepthSensing.h" />
     <ClInclude Include="Source\DepthSensing\Util.h" />
     <ClInclude Include="Source\DepthSensing\VoxelUtilHashSDF.h" />
+    <ClInclude Include="Source\DepthSensing\VR.h" />
     <ClInclude Include="Source\DualGPU.h" />
     <ClInclude Include="Source\DXUT\Core\DXUT.h" />
     <ClInclude Include="Source\DXUT\Core\DXUTDevice11.h" />
@@ -259,8 +264,12 @@
     <ClCompile Include="Source\DepthSensing\DX11RayIntervalSplatting.cpp" />
     <ClCompile Include="Source\DepthSensing\DX11RGBDRenderer.cpp" />
     <ClCompile Include="Source\DepthSensing\DX11Utils.cpp" />
+    <ClCompile Include="Source\DepthSensing\Shader.cpp" />
     <ClCompile Include="Source\DepthSensing\StdOutputLogger.cpp" />
     <ClCompile Include="Source\DepthSensing\TimingLogDepthSensing.cpp" />
+    <ClCompile Include="Source\DepthSensing\VR.cpp">
+      <FileType>Document</FileType>
+    </ClCompile>
     <ClCompile Include="Source\DualGPU.cpp" />
     <ClCompile Include="Source\DXUT\Core\DXUT.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>

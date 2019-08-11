@@ -4,7 +4,7 @@
 
 #include "DepthSensing.h"
 
-
+#include <thread>
 
 #include <windows.h>
 #include <d3d11.h>
@@ -42,6 +42,7 @@
 
 #include <iomanip>
 
+#include "VR.h"
 
 //--------------------------------------------------------------------------------------
 // UI control IDs
@@ -107,10 +108,15 @@ OnlineBundler*				g_depthSensingBundler = NULL;
 
 mat4f g_transformWorld = mat4f::identity();
 
+std::thread threadVR;
+bool VRIsOn = false;
+uchar4* blendedImage;
+
 void ResetDepthSensing();
 void StopScanningAndExtractIsoSurfaceMC(const std::string& filename = "./scans/scan.ply", bool overwriteExistingFile = false);
 void DumpinputManagerData(const std::string& filename = "./dump/dump.sensor");
 
+extern "C" void colorWithPointCloudRayCast(uchar4* d_output, const uchar4* d_input1, const float4* d_input2, unsigned int width, unsigned int height);
 
 int startDepthSensing(OnlineBundler* bundler, RGBDSensor* sensor, CUDAImageManager* imageManager)
 {
@@ -157,7 +163,7 @@ bool CALLBACK ModifyDeviceSettings(DXUTDeviceSettings* pDeviceSettings, void* pU
 		s_bFirstTime = false;
 		if ((DXUT_D3D9_DEVICE == pDeviceSettings->ver && pDeviceSettings->d3d9.DeviceType == D3DDEVTYPE_REF) ||
 			(DXUT_D3D11_DEVICE == pDeviceSettings->ver &&
-			pDeviceSettings->d3d11.DriverType == D3D_DRIVER_TYPE_REFERENCE))
+				pDeviceSettings->d3d11.DriverType == D3D_DRIVER_TYPE_REFERENCE))
 		{
 			DXUTDisplaySwitchingToREFWarning(pDeviceSettings->ver);
 		}
@@ -488,6 +494,9 @@ void CALLBACK OnKeyboard(UINT nChar, bool bKeyDown, bool bAltDown, void* pUserCo
 		case '9':
 			StopScanningAndExtractIsoSurfaceMC();
 			break;
+		case '0':
+			GlobalAppState::get().s_RenderMode = 0;
+			break;
 		case 'T':
 			GlobalAppState::get().s_timingsDetailledEnabled = !GlobalAppState::get().s_timingsDetailledEnabled;
 			break;
@@ -539,11 +548,27 @@ void CALLBACK OnKeyboard(UINT nChar, bool bKeyDown, bool bAltDown, void* pUserCo
 			break;
 		case 'I':
 		{
-			GlobalAppState::get().s_integrationEnabled = !GlobalAppState::get().s_integrationEnabled;
-			if (GlobalAppState::get().s_integrationEnabled)		std::cout << "integration enabled" << std::endl;
-			else std::cout << "integration disabled" << std::endl;
-		} break;
+			GlobalAppState::get().s_integrationEnabled = true;
+			GlobalAppState::get().s_trackingEnabled = true;
+			GlobalAppState::get().s_reconstructionEnabled = true;
+#ifdef VR_DISPLAY
+			if (!VRIsOn)
+			{
+				threadVR = std::thread(__VR_runner, g_CudaImageManager, g_rayCast, blendedImage);
+				VRIsOn = true;
+			}
 
+#endif // VR_DISPLAY
+			/*GlobalAppState::get().s_integrationEnabled = !GlobalAppState::get().s_integrationEnabled;
+			if (GlobalAppState::get().s_integrationEnabled)		std::cout << "integration enabled" << std::endl;
+			else std::cout << "integration disabled" << std::endl;*/
+		} break;
+		case 'S':
+		{
+			GlobalAppState::get().s_integrationEnabled = false;
+			GlobalAppState::get().s_trackingEnabled = false;
+			GlobalAppState::get().s_reconstructionEnabled = false;
+		} break;
 		default:
 			break;
 		}
@@ -576,6 +601,7 @@ bool CALLBACK IsD3D11DeviceAcceptable(const CD3D11EnumAdapterInfo *AdapterInfo, 
 {
 	return true;
 }
+
 
 //--------------------------------------------------------------------------------------
 // Create any D3D11 resources that aren't dependent on the back buffer
@@ -653,6 +679,9 @@ HRESULT CALLBACK OnD3D11CreateDevice(ID3D11Device* pd3dDevice, const DXGI_SURFAC
 		g_depthSensingRGBDSensor->startReceivingFrames();
 	}
 
+
+	cudaMalloc(&blendedImage, sizeof(uchar4) * 640 * 480);
+
 	return hr;
 }
 
@@ -723,7 +752,7 @@ void CALLBACK OnD3D11ReleasingSwapChain(void* pUserContext)
 void integrate(const DepthCameraData& depthCameraData, const mat4f& transformation)
 {
 	if (GlobalAppState::get().s_streamingEnabled) {
-		vec4f posWorld = transformation*vec4f(GlobalAppState::getInstance().s_streamingPos, 1.0f); // trans laggs one frame *trans
+		vec4f posWorld = transformation * vec4f(GlobalAppState::getInstance().s_streamingPos, 1.0f); // trans laggs one frame *trans
 		vec3f p(posWorld.x, posWorld.y, posWorld.z);
 
 		g_chunkGrid->streamOutToCPUPass0GPU(p, GlobalAppState::get().s_streamingRadius, true, true);
@@ -743,7 +772,7 @@ void integrate(const DepthCameraData& depthCameraData, const mat4f& transformati
 void deIntegrate(const DepthCameraData& depthCameraData, const mat4f& transformation)
 {
 	if (GlobalAppState::get().s_streamingEnabled) {
-		vec4f posWorld = transformation*vec4f(GlobalAppState::getInstance().s_streamingPos, 1.0f); // trans laggs one frame *trans
+		vec4f posWorld = transformation * vec4f(GlobalAppState::getInstance().s_streamingPos, 1.0f); // trans laggs one frame *trans
 		vec3f p(posWorld.x, posWorld.y, posWorld.z);
 
 		g_chunkGrid->streamOutToCPUPass0GPU(p, GlobalAppState::get().s_streamingRadius, true, true);
@@ -761,6 +790,7 @@ void deIntegrate(const DepthCameraData& depthCameraData, const mat4f& transforma
 	//}
 }
 
+//void 
 
 
 void visualizeFrame(ID3D11DeviceContext* pd3dImmediateContext, ID3D11Device* pd3dDevice, const mat4f& transform, bool trackingLost)
@@ -792,7 +822,11 @@ void visualizeFrame(ID3D11DeviceContext* pd3dImmediateContext, ID3D11Device* pd3
 		g_rayCast->render(g_sceneRep->getHashData(), g_sceneRep->getHashParams(), transform);
 	}
 
-	if (GlobalAppState::get().s_RenderMode == 1)	{
+	const float4* rayCastedDepth = g_rayCast->getRayCastData().d_depth4;
+	const uchar4* d_color = g_CudaImageManager->getLastIntegrateFrame().getColorFrameGPU();
+	colorWithPointCloudRayCast(blendedImage, d_color, rayCastedDepth, 640, 480);
+
+	if (GlobalAppState::get().s_RenderMode == 1) {
 		//default render mode (render ray casted depth)
 		const mat4f& renderIntrinsics = g_rayCast->getIntrinsics();
 
@@ -843,6 +877,10 @@ void visualizeFrame(ID3D11DeviceContext* pd3dImmediateContext, ID3D11Device* pd3
 		const float minDepth = GlobalAppState::get().s_sensorDepthMin;	//not that this is not the render depth!
 		const float maxDepth = GlobalAppState::get().s_sensorDepthMax;	//not that this is not the render depth!
 		DX11QuadDrawer::RenderQuadDynamicDEPTHasHSV(DXUTGetD3D11Device(), pd3dImmediateContext, d_depth, minDepth, maxDepth, g_CudaImageManager->getIntegrationWidth(), g_CudaImageManager->getIntegrationHeight());
+	}
+	else if (GlobalAppState::get().s_RenderMode == 0) {
+
+		//DX11QuadDrawer::RenderQuadDynamic(DXUTGetD3D11Device(), pd3dImmediateContext, (float*)g_CudaDepthSensor.getColorWithPointCloud(vertices), 4, g_CudaImageManager->getIntegrationWidth(), g_CudaImageManager->getIntegrationHeight());
 	}
 	else {
 		std::cout << "Unknown render mode " << GlobalAppState::get().s_RenderMode << std::endl;
@@ -1003,7 +1041,7 @@ void CALLBACK OnD3D11FrameRender(ID3D11Device* pd3dDevice, ID3D11DeviceContext* 
 	// Fix old frames
 	///////////////////////////////////////
 	if (GlobalBundlingState::get().s_enableGlobalTimings) { GlobalAppState::get().WaitForGPU(); cudaDeviceSynchronize(); t.start(); }
-	reintegrate(); 
+	reintegrate();
 	if (GlobalBundlingState::get().s_enableGlobalTimings) { GlobalAppState::get().WaitForGPU(); cudaDeviceSynchronize(); t.stop(); TimingLog::getFrameTiming(true).timeReIntegrate = t.getElapsedTimeMS(); }
 
 
@@ -1442,7 +1480,7 @@ void renderFrustum(const mat4f& transform, const mat4f& cameraMatrix, const vec4
 
 	ml::D3D11GraphicsDevice g;	g.init(DXUTGetD3D11Device(), DXUTGetD3D11DeviceContext(), DXUTGetDXGISwapChain(), DXUTGetD3D11RenderTargetView(), DXUTGetD3D11DepthStencilView());
 
-	struct ConstantBuffer	{ ml::mat4f worldViewProj; };
+	struct ConstantBuffer { ml::mat4f worldViewProj; };
 	ml::D3D11ConstantBuffer<ConstantBuffer> m_constants;
 	m_constants.init(g);
 	ConstantBuffer cBuffer;	cBuffer.worldViewProj = proj * cameraMatrix;
