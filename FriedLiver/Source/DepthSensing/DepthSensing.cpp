@@ -84,8 +84,8 @@ void RenderHelp();
 
 CDXUTDialogResourceManager	g_DialogResourceManager; // manager for shared resources of dialogs
 CDXUTTextHelper*            g_pTxtHelper = NULL;
-bool						g_renderText = true;
-bool						g_bRenderHelp = true;
+bool						g_renderText = false;
+bool						g_bRenderHelp = false;
 
 CModelViewerCamera          g_Camera;               // A model viewing camera
 DX11RGBDRenderer			g_RGBDRenderer;
@@ -111,12 +111,15 @@ mat4f g_transformWorld = mat4f::identity();
 std::thread threadVR;
 bool VRIsOn = false;
 uchar4* blendedImage;
+float4* d_dataFloat4;
 
 void ResetDepthSensing();
 void StopScanningAndExtractIsoSurfaceMC(const std::string& filename = "./scans/scan.ply", bool overwriteExistingFile = false);
 void DumpinputManagerData(const std::string& filename = "./dump/dump.sensor");
 
 extern "C" void colorWithPointCloudRayCast(uchar4* d_output, const uchar4* d_input1, const float4* d_input2, unsigned int width, unsigned int height);
+extern "C" void depthToHSV(float4* d_output, const float* d_input, unsigned int width, unsigned int height, float minDepth, float maxDepth);
+
 
 int startDepthSensing(OnlineBundler* bundler, RGBDSensor* sensor, CUDAImageManager* imageManager)
 {
@@ -140,7 +143,7 @@ int startDepthSensing(OnlineBundler* bundler, RGBDSensor* sensor, CUDAImageManag
 
 	DXUTInit(true, true); // Parse the command line, show msgboxes on error, and an extra cmd line param to force REF for now
 	DXUTSetCursorSettings(true, true); // Show the cursor and clip it when in full screen
-	DXUTCreateWindow(GlobalAppState::get().s_windowWidth, GlobalAppState::get().s_windowHeight, L"Fried Liver", false);
+	DXUTCreateWindow(GlobalAppState::get().s_windowWidth, GlobalAppState::get().s_windowHeight, L"Visualization", false);
 
 	DXUTSetIsInGammaCorrectMode(false);	//gamma fix (for kinect color)
 
@@ -681,6 +684,7 @@ HRESULT CALLBACK OnD3D11CreateDevice(ID3D11Device* pd3dDevice, const DXGI_SURFAC
 
 
 	cudaMalloc(&blendedImage, sizeof(uchar4) * 640 * 480);
+	cutilSafeCall(cudaMalloc(&d_dataFloat4, sizeof(float4) * 640 * 480));
 
 	return hr;
 }
@@ -822,9 +826,15 @@ void visualizeFrame(ID3D11DeviceContext* pd3dImmediateContext, ID3D11Device* pd3
 		g_rayCast->render(g_sceneRep->getHashData(), g_sceneRep->getHashParams(), transform);
 	}
 
-	const float4* rayCastedDepth = g_rayCast->getRayCastData().d_depth4;
+	//const float4* rayCastedDepth4 = g_rayCast->getRayCastData().d_depth4;
 	const uchar4* d_color = g_CudaImageManager->getLastIntegrateFrame().getColorFrameGPU();
-	colorWithPointCloudRayCast(blendedImage, d_color, rayCastedDepth, 640, 480);
+	//colorWithPointCloudRayCast(blendedImage, d_color, rayCastedDepth4, 640, 480);
+
+	float* rayCastedDepth = g_rayCast->getRayCastData().d_depth;
+	depthToHSV(d_dataFloat4, rayCastedDepth, 640, 480, 0.1f, 8.0f);
+	colorWithPointCloudRayCast(blendedImage, d_color, d_dataFloat4, 640, 480);
+	
+
 
 	if (GlobalAppState::get().s_RenderMode == 1) {
 		//default render mode (render ray casted depth)

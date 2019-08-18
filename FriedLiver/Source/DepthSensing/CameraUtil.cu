@@ -1723,28 +1723,29 @@ __global__ void colorWithPointCloudRayCastDevice(uchar4* d_output, const uchar4*
 		//if (y % 3 != 0)
 		//	return;
 
+
 		float depth = d_input2[index].z;
-		if (depth > 8.0f || depth < 0.1f)
+	/*	if (depth > 8.0f || depth < 0.1f)
 		{
 			d_output[index].x = d_input1[index].x;
 			d_output[index].y = d_input1[index].y;
 			d_output[index].z = d_input1[index].z;
 			d_output[index].w = d_input1[index].w;       
 			return;
-		}
+		}*/
 		
-		if (x % 2 != 0 || y % 2 != 0)
-		{
-			d_output[index].x = d_input1[index].x;
-			d_output[index].y = d_input1[index].y;
-			d_output[index].z = d_input1[index].z;
-			d_output[index].w = d_input1[index].w;
-			//return;
-		}
+		//if (x % 2 != 0 || y % 2 != 0)
+		//{
+		//	d_output[index].x = d_input1[index].x;
+		//	d_output[index].y = d_input1[index].y;
+		//	d_output[index].z = d_input1[index].z;
+		//	d_output[index].w = d_input1[index].w;
+		//	//return;
+		//}
 		float f = (depth - 0.1) / 7.9 * 1.0;
-		d_output[index].x = 255 * 0.5 + d_input1[index].x * 0.5;
-		d_output[index].y = d_input1[index].y;
-		d_output[index].z = d_input1[index].z;
+		d_output[index].x = d_input2[index].x * 0.5 * 255.0 + d_input1[index].x * 0.5;
+		d_output[index].y = d_input2[index].y * 0.5 * 255.0 + d_input1[index].y * 0.5;
+		d_output[index].z = d_input2[index].z * 0.5 * 255.0 + d_input1[index].z * 0.5;
 		d_output[index].w = d_input1[index].w;
 	}
 

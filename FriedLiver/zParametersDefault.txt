@@ -69,7 +69,7 @@ s_colorFilter = false;	//bilateral filter enabled depth
 
 s_integrationEnabled		= false;
 s_trackingEnabled			= false;
-s_timingsDetailledEnabled   = true;	//enable timing output
+s_timingsDetailledEnabled   = false;	//enable timing output
 s_timingsTotalEnabled		= false;	//enable timing output
 s_garbageCollectionEnabled	= true;
 s_garbageCollectionStarve	= 0;		//decrement the voxel weight every n'th frame
@@ -94,7 +94,7 @@ s_remappingDepthDiscontinuityThresLin	 = 0.01f;
 
 s_bUseCameraCalibration = false;
 
-s_marchingCubesMaxNumTriangles = 3000000; // max buffer size for marching cube
+s_marchingCubesMaxNumTriangles = 9000000; // max buffer size for marching cube
 
 //streaming parameters (streaming disabled for BundleFusion)
 s_streamingEnabled = false;
