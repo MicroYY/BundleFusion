@@ -126,7 +126,7 @@ bool TCPSensor::processDepth()
 	int iRet = recv(clientSocket, (char*)recvImg, bufSize, 0);
 	while (iRet != bufSize)
 	{
-		iRet += recv(clientSocket, (char*)(recvImg) + iRet, bufSize - iRet, 0);
+		iRet += recv(clientSocket, (char*)(recvImg) + iRet, bufSize - iRet, 0);	
 	}
 
 

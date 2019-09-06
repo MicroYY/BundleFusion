@@ -9,3 +9,5 @@
 /FriedLiver/Mapping/x64/Release
 /FriedLiver/VR/x64/Release
 /external
+*.ply
+*.bmp

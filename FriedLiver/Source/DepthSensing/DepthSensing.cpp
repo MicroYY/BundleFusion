@@ -112,6 +112,7 @@ std::thread threadVR;
 bool VRIsOn = false;
 uchar4* blendedImage;
 float4* d_dataFloat4;
+bool start = false;
 
 void ResetDepthSensing();
 void StopScanningAndExtractIsoSurfaceMC(const std::string& filename = "./scans/scan.ply", bool overwriteExistingFile = false);
@@ -551,12 +552,14 @@ void CALLBACK OnKeyboard(UINT nChar, bool bKeyDown, bool bAltDown, void* pUserCo
 			break;
 		case 'I':
 		{
+			start = true;
 			GlobalAppState::get().s_integrationEnabled = true;
 			GlobalAppState::get().s_trackingEnabled = true;
 			GlobalAppState::get().s_reconstructionEnabled = true;
 #ifdef VR_DISPLAY
 			if (!VRIsOn)
 			{
+				Sleep(5000);
 				threadVR = std::thread(__VR_runner, g_CudaImageManager, g_rayCast, blendedImage);
 				VRIsOn = true;
 			}
@@ -1013,6 +1016,9 @@ void StopScanningAndExit(bool aborted = false)
 //--------------------------------------------------------------------------------------
 void CALLBACK OnD3D11FrameRender(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, double fTime, float fElapsedTime, void* pUserContext)
 {
+	if (!start) {
+		return;
+	}
 	if (ConditionManager::shouldExit()) {
 		StopScanningAndExit(true);
 	}

@@ -16,7 +16,7 @@ s_heightSIFT = 480;
 s_minKeyScale = 3.0f;//5.0f;
 s_siftMatchThresh = 0.7f;//0.5f;
 s_siftMatchRatioMaxLocal = 0.8f;
-s_siftMatchRatioMaxGlobal = 0.9f;
+s_siftMatchRatioMaxGlobal = 0.8f;
 
 s_optMaxResThresh = 0.08f;			//not squared (per axis component)
 s_denseDistThresh = 0.15f;
@@ -24,7 +24,7 @@ s_denseNormalThresh = 0.97f;
 s_denseColorThresh = 0.1f;
 s_denseColorGradientMin = 0.005f;
 s_denseDepthMin = 0.5f;
-s_denseDepthMax = 8.0f;
+s_denseDepthMax = 4.0f;
 s_denseOverlapCheckSubsampleFactor = 4;
 
 s_maxNumImages = 1200;
@@ -73,5 +73,5 @@ s_depthSigmaD = 2.0f;	//bilateral filter sigma domain
 s_depthSigmaR = 0.05f;	//bilateral filter sigma range
 s_depthFilter = false;	//bilateral filter enabled depth
 
-s_useComprehensiveFrameInvalidation = false;
+s_useComprehensiveFrameInvalidation = true;
 
