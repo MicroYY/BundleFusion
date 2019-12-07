@@ -30,7 +30,7 @@ s_minPoseDistSqrt = 0.0f;	//reintegrate everything above that pose distance (squ
 // **** DEPTH SENSING BELOW ***** //
 ////////////////////////////////////
 
-s_sensorDepthMax = 4.0f;	//maximum sensor depth in meter
+s_sensorDepthMax = 7.0f;	//maximum sensor depth in meter
 s_sensorDepthMin = 0.1f;	//minimum sensor depth in meter
 s_renderDepthMax = 4.0f;	//maximum render depth in meter
 s_renderDepthMin = 0.1f;	//minimum render depth in meter
@@ -40,7 +40,7 @@ s_SDFVoxelSize = 0.010f;				//voxel size in meter (IMPORTANT: reduces to improve
 s_SDFMarchingCubeThreshFactor = 10.0f;	//marching cube thresh: s_SDFMarchingCubeThresh = s_SDFMarchingCubeThreshFactor*s_SDFVoxelSize
 s_SDFTruncation = 0.06f;				//truncation in meter
 s_SDFTruncationScale = 0.02f;			//truncation scale in meter per meter
-s_SDFMaxIntegrationDistance = 4.0f;		//maximum integration in meter
+s_SDFMaxIntegrationDistance = 6.0f;		//maximum integration in meter
 s_SDFIntegrationWeightSample = 1;		//weight for an integrated depth value
 s_SDFIntegrationWeightMax = 99999999;	//maximum integration weight for a voxel
 // s_SDFBlockSize is pound defined (SDF_BLOCK_SIZE)
@@ -94,7 +94,7 @@ s_remappingDepthDiscontinuityThresLin	 = 0.01f;
 
 s_bUseCameraCalibration = false;
 
-s_marchingCubesMaxNumTriangles = 3000000; // max buffer size for marching cube
+s_marchingCubesMaxNumTriangles = 9000000; // max buffer size for marching cube
 
 //streaming parameters (streaming disabled for BundleFusion)
 s_streamingEnabled = false;
